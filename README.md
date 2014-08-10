@@ -1,114 +1,125 @@
-## Introduction
+#README
+##Initial Instructions
+1.  Open RStudio and set working directory
+2.  Create a folder in working directory called "data"
+3.  Download raw data within the data folder  
+    <https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip>
+4.  Unzip file within the data folder
 
-This assignment uses data from
-the <a href="http://archive.ics.uci.edu/ml/">UC Irvine Machine
-Learning Repository</a>, a popular repository for machine learning
-datasets. In particular, we will be using the "Individual household
-electric power consumption Data Set" which I have made available on
-the course web site:
+##R Scripts : Results
+* plot1.R : plot1.png
+* plot2.R : plot2.png
+* plot3.R : plot3.png
+* plot4.R : plot4.png  
 
+NOTE: The png files are within the figure folder in this Repo
 
-* <b>Dataset</b>: <a href="https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip">Electric power consumption</a> [20Mb]
+##Basis R coding in all four scripts
+###Step 1: Read Data
+Create raw data  
+```
+raw <- read.csv2(file = paste0(getwd(), "/data/exdata-data-household_power_consumption/household_power_consumption.txt"), stringsAsFactors = F, na.strings = "?")
+```
 
-* <b>Description</b>: Measurements of electric power consumption in
-one household with a one-minute sampling rate over a period of almost
-4 years. Different electrical quantities and some sub-metering values
-are available.
+###Step 2: Subset Data
+Requires the `dplyr` R package  
+```
+require(dplyr)
+```  
+Filter the raw data to only include 2007-02-01 and 2007-02-02  
+```
+df <- rbind(filter(raw, Date == "1/2/2007"), filter(raw, Date == "2/2/2007"))
+```
 
+###Step 3: Format the Columns within the Subset Data
+Change the class of the Date column to Date  
+```
+df$Date <- as.Date(df$Date , "%d/%m/%Y")
+```  
+Combine the Date and Time into one string  
+```
+df$Time <- paste(df$Date, df$Time, sep=" ")
+```  
+Change the class of the Time column to Date  
+```
+df$Time <- strptime(df$Time, "%Y-%m-%d %H:%M:%S")
+```  
+Change the Rest of the columns to numeric  
+```
+df$Global_active_power <- as.numeric(df$Global_active_power)
+df$Global_reactive_power <- as.numeric(df$Global_reactive_power)
+df$Voltage <- as.numeric(df$Voltage)
+df$Global_intensity <- as.numeric(df$Global_intensity)
+df$Sub_metering_1 <- as.numeric(df$Sub_metering_1)
+df$Sub_metering_2 <- as.numeric(df$Sub_metering_2)
+df$Sub_metering_3 <- as.numeric(df$Sub_metering_3)
+```
 
-The following descriptions of the 9 variables in the dataset are taken
-from
-the <a href="https://archive.ics.uci.edu/ml/datasets/Individual+household+electric+power+consumption">UCI
-web site</a>:
+###plot1.R
+Create plot1.png within working directory  
+```
+png("plot1.png", width = 480, height = 480)
+hist(df$Global_active_power, main = "Global Active Power", xlab = "Global Active Power (kilowatts)", col = "red")
+dev.off()
+```
+![](plot1.png?raw=true)
 
-<ol>
-<li><b>Date</b>: Date in format dd/mm/yyyy </li>
-<li><b>Time</b>: time in format hh:mm:ss </li>
-<li><b>Global_active_power</b>: household global minute-averaged active power (in kilowatt) </li>
-<li><b>Global_reactive_power</b>: household global minute-averaged reactive power (in kilowatt) </li>
-<li><b>Voltage</b>: minute-averaged voltage (in volt) </li>
-<li><b>Global_intensity</b>: household global minute-averaged current intensity (in ampere) </li>
-<li><b>Sub_metering_1</b>: energy sub-metering No. 1 (in watt-hour of active energy). It corresponds to the kitchen, containing mainly a dishwasher, an oven and a microwave (hot plates are not electric but gas powered). </li>
-<li><b>Sub_metering_2</b>: energy sub-metering No. 2 (in watt-hour of active energy). It corresponds to the laundry room, containing a washing-machine, a tumble-drier, a refrigerator and a light. </li>
-<li><b>Sub_metering_3</b>: energy sub-metering No. 3 (in watt-hour of active energy). It corresponds to an electric water-heater and an air-conditioner.</li>
-</ol>
+###plot2.R
+```
+Create plot2.png within working directory  
+png("plot2.png", width = 480, height = 480)
+plot(df$Time, df$Global_active_power, xlab = "", ylab = "Global Active Power (kilowatts)", type = "l")
+dev.off()
+```
+![](plot2.png?raw=true)
 
-## Loading the data
+###plot3.R
+Create plot3.png within working directory  
+```
+png("plot3.png", width = 480, height = 480)
+ylimits = range(c(df$Sub_metering_1, df$Sub_metering_2, df$Sub_metering_3))
+plot(df$Time, df$Sub_metering_1, xlab = "", ylab = "Energy sub metering", type = "l", ylim = ylimits, col = "black")
+par(new = TRUE)
+plot(df$Time, df$Sub_metering_2, xlab = "", axes = FALSE, ylab = "", type = "l", ylim = ylimits, col = "red")
+par(new = TRUE)
+plot(df$Time, df$Sub_metering_3, xlab = "", axes = FALSE, ylab = "", type = "l", ylim = ylimits, col = "blue")
+legend("topright",
+       legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+       lty = c(1,1,1),
+       col = c("black", "red", "blue")
+)
+dev.off()
+```
+![](plot3.png?raw=true)
 
-
-
-
-
-When loading the dataset into R, please consider the following:
-
-* The dataset has 2,075,259 rows and 9 columns. First
-calculate a rough estimate of how much memory the dataset will require
-in memory before reading into R. Make sure your computer has enough
-memory (most modern computers should be fine).
-
-* We will only be using data from the dates 2007-02-01 and
-2007-02-02. One alternative is to read the data from just those dates
-rather than reading in the entire dataset and subsetting to those
-dates.
-
-* You may find it useful to convert the Date and Time variables to
-Date/Time classes in R using the `strptime()` and `as.Date()`
-functions.
-
-* Note that in this dataset missing values are coded as `?`.
-
-
-## Making Plots
-
-Our overall goal here is simply to examine how household energy usage
-varies over a 2-day period in February, 2007. Your task is to
-reconstruct the following plots below, all of which were constructed
-using the base plotting system.
-
-First you will need to fork and clone the following GitHub repository:
-[https://github.com/rdpeng/ExData_Plotting1](https://github.com/rdpeng/ExData_Plotting1)
-
-
-For each plot you should
-
-* Construct the plot and save it to a PNG file with a width of 480
-pixels and a height of 480 pixels.
-
-* Name each of the plot files as `plot1.png`, `plot2.png`, etc.
-
-* Create a separate R code file (`plot1.R`, `plot2.R`, etc.) that
-constructs the corresponding plot, i.e. code in `plot1.R` constructs
-the `plot1.png` plot. Your code file **should include code for reading
-the data** so that the plot can be fully reproduced. You should also
-include the code that creates the PNG file.
-
-* Add the PNG file and R code file to your git repository
-
-When you are finished with the assignment, push your git repository to
-GitHub so that the GitHub version of your repository is up to
-date. There should be four PNG files and four R code files.
-
-
-The four plots that you will need to construct are shown below. 
-
-
-### Plot 1
-
-
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
-
-
-### Plot 2
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
-
-
-### Plot 3
-
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
-
-
-### Plot 4
-
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
-
+###plot4.R
+Create plot4.png within working directory  
+```
+png("plot4.png", width = 480, height = 480)
+par(mfrow = c(2, 2))
+with(df, {
+    plot(Time, Global_active_power, type = "l", xlab = "", ylab = "Global Active Power")
+    
+    plot(Time, Voltage, xlab = "datetime", type = "l", ylab = "Voltage")
+    
+    ylimits = range(c(df$Sub_metering_1, df$Sub_metering_2, df$Sub_metering_3))
+    plot(Time, Sub_metering_1, xlab = "", ylab = "Energy sub metering", type = "l", ylim = ylimits, col = "black")
+    
+    par(new = TRUE)
+    plot(Time, Sub_metering_2, xlab = "", axes = FALSE, ylab = "", type = "l", ylim = ylimits, col = "red")
+    par(new = TRUE)
+    plot(Time, Sub_metering_3, xlab = "", axes = FALSE, ylab = "", type = "l", ylim = ylimits, col = "blue")
+    legend("topright",
+           legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+           bg = "transparent",
+           bty = "n",
+           lty = c(1,1,1),
+           col = c("black", "red", "blue")
+    )
+    
+    plot(Time, Global_reactive_power, type = "l", xlab = "datetime", ylab = "Global_reactive_power")
+    
+})
+dev.off()
+```  
+![](plot4.png?raw=true)
