@@ -62,7 +62,7 @@ png("plot1.png", width = 480, height = 480)
 hist(df$Global_active_power, main = "Global Active Power", xlab = "Global Active Power (kilowatts)", col = "red")
 dev.off()
 ```
-![](plot1.png?raw=true)
+![](figure/plot1.png?raw=true)
 
 ###plot2.R
 ```
@@ -71,7 +71,7 @@ png("plot2.png", width = 480, height = 480)
 plot(df$Time, df$Global_active_power, xlab = "", ylab = "Global Active Power (kilowatts)", type = "l")
 dev.off()
 ```
-![](plot2.png?raw=true)
+![](figure/plot2.png?raw=true)
 
 ###plot3.R
 Create plot3.png within working directory  
@@ -90,7 +90,7 @@ legend("topright",
 )
 dev.off()
 ```
-![](plot3.png?raw=true)
+![](figure/plot3.png?raw=true)
 
 ###plot4.R
 Create plot4.png within working directory  
@@ -122,4 +122,4 @@ with(df, {
 })
 dev.off()
 ```  
-![](plot4.png?raw=true)
+![](figure/plot4.png?raw=true)
